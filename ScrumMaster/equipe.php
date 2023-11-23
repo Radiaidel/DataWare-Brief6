@@ -98,9 +98,19 @@
 
     <div class="p-5 mt-14 sm:ml-64">
         <div class="relative overflow-x-auto  sm:rounded-lg">
-        <div class=" space-y-4 md:space-y-0 py-4 dark:bg-gray-900">
-                <form class=" justify-end flex items-center">
-                    <div class=" w-50   ">
+        <div
+                class="flex items-center justify-between flex-column md:flex-row flex-wrap space-y-4 md:space-y-0 py-4 dark:bg-gray-900">
+                <div>
+                    <button
+                        class="inline-flex items-center text-gray-500 bg-white border border-gray-300 focus:outline-none hover:bg-gray-100 focus:ring-4 focus:ring-gray-200 font-medium rounded-lg text-sm px-3 py-1.5 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:bg-gray-700 dark:hover:border-gray-600 dark:focus:ring-gray-700"
+                        type="button">
+                        Ajouter une équipe
+                    </button>
+                </div>
+                <label for="table-search" class="sr-only">Search</label>
+
+                <form class="flex items-center">
+                    <div class=" w-full">
                         <input type="text" id="simple-search"
                             class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5  dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                             placeholder="Rechercher une équipe" required>
@@ -112,7 +122,7 @@
                             <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z" />
                         </svg>
-                    </button>
+                </button>
                 </form>
 
             </div>

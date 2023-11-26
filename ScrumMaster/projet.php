@@ -1,3 +1,17 @@
+<?php
+include("../Connexion.php");
+session_start();
+$id_utilisateur = $_SESSION['utilisateur']['id'];
+
+$sql = "SELECT  projet.nom as nom_projet, description, projet.date_creation as date_creation, date_limite, projet.statut  as statut,equipe.nom AS nom_equipe FROM `projet` join utilisateur on utilisateur.id= projet.id_user JOIN
+equipe ON projet.id = equipe.id_projet where projet.id_user=?";
+$requete = $conn->prepare($sql);
+$requete->bind_param("i", $id_utilisateur);
+$requete->execute();
+$resultat = $requete->get_result();
+
+
+?>
 <!DOCTYPE html>
 <html lang="en">
 
@@ -7,7 +21,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src='https://kit.fontawesome.com/a076d05399.js' crossorigin='anonymous'></script>
 
-    <title>Document</title>
+    <title>dataware | projet</title>
 </head>
 
 <body class="bg-[#ECECF8]">
@@ -69,7 +83,7 @@
                     <span class="mx-2">Membres</span>
                 </a>
 
-                <a href="../Authentification.php"
+                <a href="../Deconnexion.php"
                     class="flex items-center px-4 py-2 text-gray-200 hover:bg-[#5355]  transition duration-300 ">
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-6 h-6">
                         <path fill-rule="evenodd"
@@ -97,24 +111,35 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50
-                                dark:hover:bg-gray-600 ">
-                                <td scope="row" class=" px-6 py-4 text-gray-900 whitespace-nowrap dark:text-white">
-                                    Projet A</td>
-                                <td class="px-6 py-4">Description du Projet A</td>
-                                <td class="py-2 px-4 border-b">Équipe A, Équipe B</td>
-                                <td class="px-6 py-4">2023-01-01</td>
-                                <td class="px-6 py-4">2023-12-31</td>
-                                <td class="px-6 py-4">
-                                <svg xmlns="http://www.w3.org/2000/svg" fill="none"
-                                            viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
-                                            class="w-6 h-6">
-                                            <path stroke-linecap="round" stroke-linejoin="round"
-                                                d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10" />
-                                        </svg>
-                                </td>
+                        <?php
+                            while ($row = $resultat->fetch_assoc()) {
 
-                            </tr>
+                                echo " 
+                                    <tr class=\"bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50
+                                    dark:hover:bg-gray-600 \">
+                                    <td scope=\"row\" class=\" px-6 py-4 text-gray-900 whitespace-nowrap
+                                        dark:text-white\">{$row['nom_projet']}</td>
+                                    <td class=\"py-2 px-4 border-b\">{$row['description']}</td>
+
+                                    <td class=\"py-2 px-4 border-b\">{$row['nom_equipe']}</td>
+
+
+                                    <td class=\"px-6 py-4 border-b\">{$row['date_creation']}</td>
+                                    <td class=\"px-6 py-4 border-b\">{$row['date_limite']}</td>
+                                    <td class=\"px-6 py-4\">
+                                                                    <div class=\" flex gap-6\"><svg xmlns=\"http://www.w3.org/2000/svg\" fill=\"none\"
+                                                                            viewBox=\"0 0 24 24\" stroke-width=\"1.5\" stroke=\"currentColor\"
+                                                                            class=\"w-6 h-6\">
+                                                                            <path stroke-linecap=\"round\" stroke-linejoin=\"round\"
+                                                                                d=\"M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10\" />
+                                                                      </div>
+                                                                </td>
+                                    </tr>
+                                    ";
+                            }
+                            ?>
+
+                 
                         </tbody>
                     </table>
                 </div>

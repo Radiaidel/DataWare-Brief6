@@ -1,3 +1,12 @@
+<?php
+include("../Connexion.php");
+
+$sql = "select nom,email,statut from utilisateur where role='user' ";
+$requete = $conn->prepare($sql);
+$requete->execute();
+$resultat = $requete->get_result();
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -7,7 +16,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src='https://kit.fontawesome.com/a076d05399.js' crossorigin='anonymous'></script>
 
-    <title>Document</title>
+    <title>dataware | membre</title>
 </head>
 
 <body class="bg-[#ECECF8]">
@@ -69,7 +78,7 @@
                     <span class="mx-2">Membres</span>
                 </a>
 
-                <a href="../Authentification.php"
+                <a href="../Deconnexion.php"
                     class="flex items-center px-4 py-2 text-gray-200 hover:bg-[#5355]  transition duration-300 ">
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-6 h-6">
                         <path fill-rule="evenodd"
@@ -88,63 +97,27 @@
 
 
                 <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-                    <div class="bg-white p-6 rounded-lg shadow-md text-center">
-                        <img class="w-28 h-28 mb-4 rounded-full shadow-lg mx-auto" src="../Images/user.png"
-                            alt="Bonnie image" />
-                        <h2 class="text-xl font-bold mb-2">John Doe</h2>
-                        <p class="text-gray-600 mb-2">john.doe@example.com</p>
-                        <p class="text-gray-600 mb-4">Développeur</p>
-                        <button class="bg-[#2F329F] text-white py-2 px-4 rounded-md ">
+
+                    <?php
+                    while ($row = $resultat->fetch_assoc()) {
+                        echo "
+                            <div class=\"bg-white p-6 rounded-lg shadow-md text-center\">
+                    <img class=\"w-28 h-28 mb-4 rounded-full shadow-lg mx-auto\" src=\"../Images/user.png\"
+                        alt=\"Bonnie image\" />
+                            <h2 class=\"text-xl font-bold mb-2\">{$row['nom']}</h2>
+                            <p class=\"text-gray-600 mb-2\">{$row['email']}</p>
+                            <p class=\"text-gray-600 mb-4\">{$row['statut']}</p>
+                            <button class=\"bg-[#2F329F] text-white py-2 px-4 rounded-md \">
                             Voir le Profil
                         </button>
-                    </div>
-
-
-                    <div class="bg-white p-6 rounded-lg shadow-md text-center">
-                        <img class="w-28 h-28 mb-4 rounded-full shadow-lg mx-auto" src="../Images/user.png"
-                            alt="Bonnie image" />
-                        <h2 class="text-xl font-bold mb-2">John Doe</h2>
-                        <p class="text-gray-600 mb-2">john.doe@example.com</p>
-                        <p class="text-gray-600 mb-4">Développeur</p>
-                        <button class="bg-[#2F329F] text-white py-2 px-4 rounded-md ">
-                            Voir le Profil
-                        </button>
-                    </div>
-
-                    <div class="bg-white p-6 rounded-lg shadow-md text-center">
-                        <img class="w-28 h-28 mb-4 rounded-full shadow-lg mx-auto" src="../Images/user.png"
-                            alt="Bonnie image" />
-                        <h2 class="text-xl font-bold mb-2">John Doe</h2>
-                        <p class="text-gray-600 mb-2">john.doe@example.com</p>
-                        <p class="text-gray-600 mb-4">Développeur</p>
-                        <button class="bg-[#2F329F] text-white py-2 px-4 rounded-md ">
-                            Voir le Profil
-                        </button>
-                    </div>
-
-                    <div class="bg-white p-6 rounded-lg shadow-md text-center">
-                        <img class="w-28 h-28 mb-4 rounded-full shadow-lg mx-auto" src="../Images/user.png"
-                            alt="Bonnie image" />
-                        <h2 class="text-xl font-bold mb-2">John Doe</h2>
-                        <p class="text-gray-600 mb-2">john.doe@example.com</p>
-                        <p class="text-gray-600 mb-4">Développeur</p>
-                        <button class="bg-[#2F329F] text-white py-2 px-4 rounded-md ">
-                            Voir le Profil
-                        </button>
-                    </div>
-
-                    <div class="bg-white p-6 rounded-lg shadow-md text-center">
-                        <img class="w-28 h-28 mb-4 rounded-full shadow-lg mx-auto" src="../Images/user.png"
-                            alt="Bonnie image" />
-                        <h2 class="text-xl font-bold mb-2">John Doe</h2>
-                        <p class="text-gray-600 mb-2">john.doe@example.com</p>
-                        <p class="text-gray-600 mb-4">Développeur</p>
-                        <button class="bg-[#2F329F] text-white py-2 px-4 rounded-md ">
-                            Voir le Profil
-                        </button>
-                    </div>
+                        </div>
+                            ";
+                    }
+                    ?>
 
                 </div>
+
+
 
             </div>
         </div>

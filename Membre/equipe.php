@@ -1,3 +1,40 @@
+<?php
+include("../Connexion.php");
+session_start();
+
+$id_utilisateur = $_SESSION['utilisateur']['id'];
+$sql = "SELECT
+        equipe.nom AS nom_equipe,
+        projet.nom AS nom_projet,
+        utilisateur.nom AS scrum_master,
+        GROUP_CONCAT(DISTINCT membre.nom SEPARATOR ', ') AS membres,
+        equipe.date_creation as date_creation
+    FROM
+        equipe
+    JOIN
+        MembreEquipe ON equipe.id = MembreEquipe.id_equipe
+    JOIN
+        utilisateur ON equipe.id_user = utilisateur.id
+    JOIN
+        projet ON equipe.id_projet = projet.id
+    LEFT JOIN
+        MembreEquipe AS membre_equipe ON equipe.id = membre_equipe.id_equipe
+    LEFT JOIN
+        utilisateur AS membre ON membre_equipe.id_user = membre.id
+        where membreequipe.id_user=?
+    GROUP BY
+        equipe.nom, utilisateur.nom, projet.nom;
+    
+    ";
+
+$requete = $conn->prepare($sql);
+$requete->bind_param("i", $id_utilisateur);
+
+$requete->execute();
+
+$resultat = $requete->get_result();
+
+?>
 <!DOCTYPE html>
 <html lang="en">
 
@@ -90,24 +127,24 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50
-                                dark:hover:bg-gray-600 ">
-                                <td scope="row" class=" px-6 py-4 text-gray-900 whitespace-nowrap dark:text-white">
-                                    Equipe A</td>
-                                    <td class="py-2 px-4 border-b">Projet A</td>
-                                    <td class="px-6 py-4">
-                                        <div class="flex gap-4 items-center"><img src="../Images/user.png" alt=""
-                                        width="40">John Doe
-                                    </td>
-                                    <td class="px-6 py-4 flex  gap-1 items-center">
-                                        <img src="../Images/user.png" alt="Membre 1" class="w-8 h-8 rounded-full">
-                                        <img src="../Images/user.png" alt="Membre 2" class="w-8 h-8 rounded-full">
-                                        <img src="../Images/user.png" alt="Membre 3" class="w-8 h-8 rounded-full">
-                                        <img src="../Images/user.png" alt="Membre 4" class="w-8 h-8 rounded-full">
-                                        
-                                    </td>
-                                    <td class="px-6 py-4">2023-01-01</td>
-                            </tr>
+                          
+                                <?php
+                                while ($row = $resultat->fetch_assoc()) {
+
+                                echo " 
+                                <tr class=\"bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50
+                                dark:hover:bg-gray-600 \">
+                                <td scope=\"row\" class=\" px-6 py-4 text-gray-900 whitespace-nowrap
+                                    dark:text-white\">{$row['nom_equipe']}</td>
+                                <td class=\"py-2 px-4 border-b\">{$row['nom_projet']}</td>
+                                <td class=\"px-6 py-4 border-b\">{$row['scrum_master']}</td>
+                                <td class=\"px-6 py-4 border-b\">{$row['membres']}</td>
+                                <td class=\"px-6 py-4 border-b\">{$row['date_creation']}</td>
+                                </tr>
+                                ";
+                                }
+                                ?>
+                            
                         </tbody>
                     </table>
                 </div>
@@ -115,8 +152,9 @@
         </div>
     </div>
 
-
-
+<?php
+    $requete->close();
+?>
 
 
 </body>

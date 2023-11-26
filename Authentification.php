@@ -1,3 +1,79 @@
+<?php
+include("Connexion.php");
+if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['submitSignUp'])) {
+    $nom = $_POST['newname'];
+    $email = $_POST['newEmail'];
+    $motDePasse = $_POST['newPassword'];
+    $confirmationMotDePasse = $_POST['ConfirmPassword'];
+
+    if ($motDePasse !== $confirmationMotDePasse) {
+        echo "Les mots de passe ne correspondent pas.";
+    } else {
+        $motDePasseHash = password_hash($motDePasse, PASSWORD_DEFAULT);
+
+        $requete = $conn->prepare("INSERT INTO utilisateur (nom, email, password,statut,role) VALUES (?, ?, ?,'actif','user')");
+        if (!$requete) {
+            die("Erreur de préparation de la requête : " . $conn->error);
+        }
+        
+        $requete->bind_param("sss", $nom, $email, $motDePasseHash);
+
+        if ($requete->execute()) {
+            echo "Inscription réussie !";
+            header("Location: Authentification.php");
+        } else {
+            echo "Erreur lors de l'inscription : " . $requete->error;
+        }
+
+        $requete->close();
+    }
+}
+if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['submitSignIn'])) {
+
+    $email = $_POST['email'];
+    $motDePasse = $_POST['password'];
+
+    $requete = $conn->prepare("SELECT * FROM utilisateur WHERE email = ?");
+    if (!$requete) {
+        die("Erreur de préparation de la requête : " . $conn->error);
+    }
+    
+    $requete->bind_param("s", $email);
+    $requete->execute();
+    $resultat = $requete->get_result();
+
+    if ($resultat->num_rows == 1) {
+        $utilisateur = $resultat->fetch_assoc();
+
+        if (password_verify($motDePasse, $utilisateur['password'])) {
+            session_start();
+            $_SESSION['utilisateur'] = [
+                'id' => $utilisateur['id'],
+                'nom' => $utilisateur['nom'],
+                'email' => $utilisateur['email'],
+                'role' => $utilisateur['role'],
+                // Ajoutez d'autres champs si nécessaire
+            ];
+            if ($utilisateur['role'] == 'user') {
+                header("Location: ./Membre/Dashboard.php");
+                exit();
+            } elseif ($utilisateur['role'] == 'po') {
+                header("Location: ./ProductOwner/Dashboard.php");
+                exit();
+            } else {
+                header("Location: ./ScrumMaster/Dashboard.php");
+            }
+        } else {
+            echo "Mot de passe incorrect.";
+        }
+    } else {
+        echo "Aucun utilisateur trouvé avec cet email.";
+    }
+
+    $requete->close();
+}
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -44,7 +120,7 @@
                 <a href="#" class="text-sm text-blue-500 hover:underline">Forgot password?</a>
             </div>
 
-            <button type="submit"
+            <button type="submit" name="submitSignIn"
                 class="w-full bg-[#2F329F]  text-white p-2 rounded-md hover:bg-[#5355B2] focus:outline-none focus:ring focus:border-blue-300">
                 Sign in
             </button>
@@ -68,7 +144,7 @@
                     <input type="password" name="ConfirmPassword" id="ConfirmPassword"
                     class="w-full p-2 border rounded-md focus:outline-none focus:ring focus:border-blue-300"
                     placeholder="Confirm password" required>
-            <button type="submit"
+            <button type="submit" name="submitSignUp"
                 class="w-full bg-[#2F329F]  text-white p-2 rounded-md hover:bg-[#5355B2] focus:outline-none focus:ring focus:border-blue-300 mt-40">
                 Sign up
             </button>

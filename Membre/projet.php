@@ -1,3 +1,39 @@
+<?php
+include("../Connexion.php");
+session_start();
+
+$id_utilisateur = $_SESSION['utilisateur']['id'];
+$sql = " SELECT
+projet.id AS projet_id,
+projet.nom AS nom_projet,
+projet.description AS description_projet,
+utilisateur.nom AS scrum_master,
+equipe.nom AS nom_equipe,
+projet.date_creation AS date_creation_projet,
+projet.date_limite AS date_limite_projet,
+projet.statut AS statut_projet
+FROM
+projet
+JOIN
+equipe ON projet.id = equipe.id_projet
+JOIN
+MembreEquipe ON equipe.id = MembreEquipe.id_equipe
+JOIN
+utilisateur ON projet.id_user = utilisateur.id
+WHERE
+MembreEquipe.id_user = ?;
+
+    ";
+
+
+$requete = $conn->prepare($sql);
+$requete->bind_param("i", $id_utilisateur);
+
+$requete->execute();
+
+$resultat = $requete->get_result();
+
+?>
 <!DOCTYPE html>
 <html lang="en">
 
@@ -86,24 +122,34 @@
                                 <th scope="col" class="px-6 py-3">Description</th>
                                 <th scope="col" class="px-6 py-3">Scrum Master</th>
                                 <th scope="col" class="px-6 py-3">Équipe</th>
+                                <th scope="col" class="px-6 py-3">Statut</th>
                                 <th scope="col" class="px-6 py-3">Date de Création</th>
                                 <th scope="col" class="px-6 py-3">Deadline</th>
                             </tr>
                         </thead>
                         <tbody>
-                            <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50
-                                dark:hover:bg-gray-600 ">
-                                <td scope="row" class=" px-6 py-4 text-gray-900 whitespace-nowrap dark:text-white">
-                                    Projet A</td>
-                                <td class="px-6 py-4">Description du Projet A</td>
-                                <td class="px-6 py-4">
-                                    <div class="flex gap-6 items-center"><img src="../Images/user.png" alt=""
-                                            width="40">John Doe
-                                </td>
-                                <td class="py-2 px-4 border-b">Équipe A, Équipe B</td>
-                                <td class="px-6 py-4">2023-01-01</td>
-                                <td class="px-6 py-4">2023-12-31</td>
-                            </tr>
+                            <?php
+                            while ($row = $resultat->fetch_assoc()) {
+
+                                echo " 
+                                <tr class=\"bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50
+                                dark:hover:bg-gray-600 \">
+                                <td scope=\"row\" class=\" px-6 py-4 text-gray-900 whitespace-nowrap
+                                    dark:text-white\">{$row['nom_projet']}</td>
+                                <td class=\"py-2 px-4 border-b\">{$row['description_projet']}</td>
+                                <td class=\"py-2 px-4 border-b\">{$row['scrum_master']}</td>
+
+                                <td class=\"py-2 px-4 border-b\">{$row['nom_equipe']}</td>
+
+                                <td class=\"py-2 px-4 border-b\">{$row['statut_projet']}</td>
+
+                                <td class=\"px-6 py-4 border-b\">{$row['date_creation_projet']}</td>
+                                <td class=\"px-6 py-4 border-b\">{$row['date_limite_projet']}</td>
+                                </tr>
+                                ";
+                            }
+                            ?>
+
                         </tbody>
                     </table>
                 </div>

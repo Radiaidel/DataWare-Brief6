@@ -1,3 +1,13 @@
+<?php
+include("../Connexion.php");
+session_start();
+$id_utilisateur = $_SESSION['utilisateur']['id'];
+
+$sql = "select nom,email,statut from utilisateur";
+$requete = $conn->prepare($sql);
+$requete->execute();
+$resultat = $requete->get_result();
+?>
 <!DOCTYPE html>
 <html lang="en">
 
@@ -81,68 +91,30 @@
             </nav>
         </aside>
 
-        <div class="flex-1 flex flex-col overflow-hidden">
+        <div class="flex-1 flex flex-col ">
 
             <div class="container mx-auto p-6">
                 <h1 class="text-3xl text-center font-bold text-gray-800 mb-6">Membres Management</h1>
 
 
                 <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-                    <div class="bg-white p-6 rounded-lg shadow-md text-center">
-                        <img class="w-28 h-28 mb-4 rounded-full shadow-lg mx-auto" src="../Images/user.png"
-                            alt="Bonnie image" />
-                        <h2 class="text-xl font-bold mb-2">John Doe</h2>
-                        <p class="text-gray-600 mb-2">john.doe@example.com</p>
-                        <p class="text-gray-600 mb-4">Développeur</p>
-                        <button class="bg-[#2F329F] text-white py-2 px-4 rounded-md ">
-                            Voir le Profil
-                        </button>
-                    </div>
 
-
-                    <div class="bg-white p-6 rounded-lg shadow-md text-center">
-                        <img class="w-28 h-28 mb-4 rounded-full shadow-lg mx-auto" src="../Images/user.png"
-                            alt="Bonnie image" />
-                        <h2 class="text-xl font-bold mb-2">John Doe</h2>
-                        <p class="text-gray-600 mb-2">john.doe@example.com</p>
-                        <p class="text-gray-600 mb-4">Développeur</p>
-                        <button class="bg-[#2F329F] text-white py-2 px-4 rounded-md ">
-                            Voir le Profil
-                        </button>
-                    </div>
-
-                    <div class="bg-white p-6 rounded-lg shadow-md text-center">
-                        <img class="w-28 h-28 mb-4 rounded-full shadow-lg mx-auto" src="../Images/user.png"
-                            alt="Bonnie image" />
-                        <h2 class="text-xl font-bold mb-2">John Doe</h2>
-                        <p class="text-gray-600 mb-2">john.doe@example.com</p>
-                        <p class="text-gray-600 mb-4">Développeur</p>
-                        <button class="bg-[#2F329F] text-white py-2 px-4 rounded-md ">
-                            Voir le Profil
-                        </button>
-                    </div>
-
-                    <div class="bg-white p-6 rounded-lg shadow-md text-center">
-                        <img class="w-28 h-28 mb-4 rounded-full shadow-lg mx-auto" src="../Images/user.png"
-                            alt="Bonnie image" />
-                        <h2 class="text-xl font-bold mb-2">John Doe</h2>
-                        <p class="text-gray-600 mb-2">john.doe@example.com</p>
-                        <p class="text-gray-600 mb-4">Développeur</p>
-                        <button class="bg-[#2F329F] text-white py-2 px-4 rounded-md ">
-                            Voir le Profil
-                        </button>
-                    </div>
-
-                    <div class="bg-white p-6 rounded-lg shadow-md text-center">
-                        <img class="w-28 h-28 mb-4 rounded-full shadow-lg mx-auto" src="../Images/user.png"
-                            alt="Bonnie image" />
-                        <h2 class="text-xl font-bold mb-2">John Doe</h2>
-                        <p class="text-gray-600 mb-2">john.doe@example.com</p>
-                        <p class="text-gray-600 mb-4">Développeur</p>
-                        <button class="bg-[#2F329F] text-white py-2 px-4 rounded-md ">
-                            Voir le Profil
-                        </button>
-                    </div>
+                    <?php
+                    while ($row = $resultat->fetch_assoc()) {
+                        echo "
+                                <div class=\"bg-white p-6 rounded-lg shadow-md text-center\">
+                        <img class=\"w-28 h-28 mb-4 rounded-full shadow-lg mx-auto\" src=\"../Images/user.png\"
+                            alt=\"Bonnie image\" />
+                                <h2 class=\"text-xl font-bold mb-2\">{$row['nom']}</h2>
+                                <p class=\"text-gray-600 mb-2\">{$row['email']}</p>
+                                <p class=\"text-gray-600 mb-4\">{$row['statut']}</p>
+                                <button class=\"bg-[#2F329F] text-white py-2 px-4 rounded-md \">
+                                Voir le Profil
+                            </button>
+                            </div>
+                                ";
+                    }
+                    ?>
 
                 </div>
 
@@ -150,7 +122,9 @@
         </div>
     </div>
 
-
+<?php
+$requete->close();
+?>
 
 
 </body>

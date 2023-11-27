@@ -31,6 +31,35 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['projectId'])) {
     $stmtDeleteProject->execute();
 }
 
+//ajouter un projet
+
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    if (isset($_POST["projectName"], $_POST["deadline"], $_POST["scrum_master"], $_POST["description"])) {
+        $projectName = htmlspecialchars($_POST["projectName"]);
+        $deadline = htmlspecialchars($_POST["deadline"]);
+        $scrumMaster = htmlspecialchars($_POST["scrum_master"]);
+        $description = htmlspecialchars($_POST["description"]);
+
+        // Préparez et exécutez la requête d'insertion
+        $sql = "INSERT INTO projet (nom, description, date_creation, date_limite, statut, id_user) VALUES (?, ?, NOW(), ?,'En cours',?);";
+        $requete = $conn->prepare($sql);
+
+        if ($requete) {
+            $requete->bind_param("ssss", $projectName, $description, $deadline, $scrumMaster);
+            if ($requete->execute()) {
+                echo "Projet ajouté avec succès.";
+                header("Location: Projet.php");
+            } else {
+                echo "Erreur lors de l'ajout du projet : " . $requete->error;
+            }
+            $requete->close();
+        } else {
+            echo "Erreur de préparation de la requête : " . $conn->error;
+        }
+    } else {
+        echo "Tous les champs du formulaire doivent être remplis.";
+    }
+}
 
 ?>
 <!DOCTYPE html>
@@ -120,7 +149,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['projectId'])) {
             <div class="container mx-auto p-6">
                 <h1 class="text-3xl text-center font-bold text-gray-800 mb-6">Project Management</h1>
                 <div class="mb-6">
-                    <button class="inline-flex items-center text-gray-500 bg-white border border-gray-300
+                    <button id="openModal" onclick="addProject()" class="inline-flex items-center text-gray-500 bg-white border border-gray-300
                                 hover:bg-gray-100  font-medium
                                 rounded-lg text-sm px-3 py-1.5 ">
                         Ajouter un Projet
@@ -177,6 +206,70 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['projectId'])) {
                             ?>
                         </tbody>
                     </table>
+                </div>
+                <div id="projectModal"
+                    class="hidden fixed top-0 left-0 w-full h-full bg-black bg-opacity-50 flex items-center justify-center">
+
+
+                    <div class="bg-white p-8 rounded shadow-lg w-96">
+                        <div class="flex justify-end w-full">
+
+                            <button id="closeModal" type="button"
+                                class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm h-8 w-8  ms-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white"
+                                data-modal-toggle="crypto-modal">
+                                <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none"
+                                    viewBox="0 0 14 14">
+                                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
+                                        stroke-width="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6" />
+                                </svg>
+                                <span class="sr-only">Close modal</span>
+                            </button>
+                        </div>
+                        <form action="Projet.php" method="post">
+                            <div class="mb-4">
+                                <label for="projectName" class="block text-gray-700 text-sm font-bold mb-2">Nom du
+                                    Projet</label>
+                                <input type="text" id="projectName" name="projectName"
+                                    class="px-4 py-2 w-full border rounded focus:outline-none focus:border-blue-500">
+                            </div>
+
+                            <div class="mb-4">
+                                <label for="deadline"
+                                    class="block text-gray-700 text-sm font-bold mb-2">Deadline</label>
+                                <input type="date" id="deadline" name="deadline"
+                                    class="px-4 py-2 w-full border rounded focus:outline-none focus:border-blue-500">
+                            </div>
+
+                            <div class="mb-4">
+                                <label for="scrum_master" class="block text-gray-700 text-sm font-bold mb-2">Scrum
+                                    Master</label>
+                                <select id="scrum_master" name="scrum_master"
+                                    class="px-4 py-2 w-full border rounded focus:outline-none focus:border-blue-500">
+                                    <?php
+
+                                    $sql = "SELECT id,email from utilisateur where role='sm';";
+                                    $requete = $conn->prepare($sql);
+                                    $requete->execute();
+                                    $resultat = $requete->get_result();
+                                    while ($row = $resultat->fetch_assoc()) {
+                                        echo "<option value=\"{$row['id']}\">{$row['email']}</option>";
+                                    }
+                                    ?>
+                                </select>
+                            </div>
+
+                            <div class="mb-4">
+                                <label for="description"
+                                    class="block text-gray-700 text-sm font-bold mb-2">Description</label>
+                                <textarea id="description" name="description" rows="4"
+                                    class="px-4 py-2 w-full border rounded focus:outline-none focus:border-blue-500"></textarea>
+                            </div>
+
+                            <button type="submit"
+                                class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 focus:outline-none focus:shadow-outline-blue">Ajouter
+                                Projet</button>
+                        </form>
+                    </div>
                 </div>
             </div>
         </div>

@@ -97,7 +97,7 @@ $resultat = $requete->get_result();
                 </a>
 
 
-                <a href="../Authentification.php"
+                <a href="../Deconnexion.php"
                     class="flex items-center px-4 py-2 text-gray-200 hover:bg-[#5355]  transition duration-300 ">
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-6 h-6">
                         <path fill-rule="evenodd"

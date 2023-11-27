@@ -23,3 +23,23 @@ function confirmDelete(event) {
         xhr.send(formData);
     }
 }
+function confirmDeleteTeam(event) {
+    var confirmation = window.confirm('Are you sure you want to delete this team?');
+
+    if (confirmation) {
+        // If confirmed, proceed with the deletion
+        var equipeId = event.target.closest('tr').dataset.equipeId; // Get the team ID
+        var xhr = new XMLHttpRequest();
+        xhr.open('POST', 'equipe.php', true);
+        xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+        xhr.onreadystatechange = function () {
+            if (xhr.readyState == 4 && xhr.status == 200) {
+                // Handle the response from the server
+                console.log(xhr.responseText);
+                // Optional: Reload or update the team list after deletion
+                window.location.reload(); // Uncomment this line to reload the page
+            }
+        };
+        xhr.send('id_equipe=' + equipeId);
+    }
+}

@@ -1,7 +1,5 @@
 <?php
 include("../Connexion.php");
-session_start();
-$id_utilisateur = $_SESSION['utilisateur']['id'];
 
 $sql = "select nom,email,statut from utilisateur";
 $requete = $conn->prepare($sql);

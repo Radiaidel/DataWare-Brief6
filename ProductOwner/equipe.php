@@ -1,31 +1,20 @@
 <?php
 include("../Connexion.php");
-session_start();
-
-$id_utilisateur = $_SESSION['utilisateur']['id'];
 
 $sql = "SELECT
-        equipe.nom AS nom_equipe,
-        projet.nom AS nom_projet,
-        utilisateur.nom AS scrum_master,
-        GROUP_CONCAT(DISTINCT membre.nom SEPARATOR ', ') AS membres,
-        equipe.date_creation as date_creation
-    FROM
-        equipe
-    JOIN
-        MembreEquipe ON equipe.id = MembreEquipe.id_equipe
-    JOIN
-        utilisateur ON equipe.id_user = utilisateur.id
-    JOIN
-        projet ON equipe.id_projet = projet.id
-    LEFT JOIN
-        MembreEquipe AS membre_equipe ON equipe.id = membre_equipe.id_equipe
-    LEFT JOIN
-        utilisateur AS membre ON membre_equipe.id_user = membre.id
-    GROUP BY
-        equipe.nom, utilisateur.nom, projet.nom;
-    
-    ";
+equipe.nom AS nom_equipe,
+projet.nom AS nom_projet,
+utilisateur.nom AS scrum_master,
+equipe.date_creation as date_creation
+FROM
+equipe
+JOIN
+utilisateur ON equipe.id_user = utilisateur.id
+JOIN
+projet ON equipe.id_projet = projet.id
+GROUP BY
+equipe.nom, utilisateur.nom, projet.nom;";
+
 $requete = $conn->prepare($sql);
 $requete->execute();
 $resultat = $requete->get_result();
@@ -101,7 +90,7 @@ $resultat = $requete->get_result();
                     <span class="mx-2">Membres</span>
                 </a>
 
-                <a href="../Authentification.php"
+                <a href="../Deconnexion.php"
                     class="flex items-center px-4 py-2 text-gray-200 hover:bg-[#5355]  transition duration-300 ">
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-6 h-6">
                         <path fill-rule="evenodd"
@@ -123,11 +112,11 @@ $resultat = $requete->get_result();
                         <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
                             <tr>
                                 <th scope="col" class="px-6 py-3">Nom d'équipes</th>
-                                <th scope="col" class="px-6 py-3">date de création</th>
-                                <th scope="col" class="px-6 py-3">Scrum Master</th>
                                 <th scope="col" class="px-6 py-3">Projet</th>
-                                <th scope="col" class="px-6 py-3">Membres</th>
-                            </tr>
+                                <th scope="col" class="px-6 py-3">Scrum Master</th>
+                                <th scope="col" class="px-6 py-3">date de création</th>
+
+                           </tr>
                         </thead>
                         <tbody>
                         <?php
@@ -140,8 +129,7 @@ $resultat = $requete->get_result();
                                     dark:text-white\">{$row['nom_equipe']}</td>
                                 <td class=\"py-2 px-4 border-b\">{$row['nom_projet']}</td>
                                 <td class=\"px-6 py-4 border-b\">{$row['scrum_master']}</td>
-                                <td class=\"px-6 py-4 border-b\">{$row['membres']}</td>
-                                <td class=\"px-6 py-4 border-b\">{$row['date_creation']}</td>
+                                  <td class=\"px-6 py-4 border-b\">{$row['date_creation']}</td>
                                 </tr>
                                 ";
                                 }

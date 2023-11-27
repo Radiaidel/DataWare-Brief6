@@ -2,11 +2,21 @@
 include("../Connexion.php");
 session_start();
 $utilisateur = $_SESSION['utilisateur']['id'];
-$sql = "SELECT equipe.id as id_equipe, equipe.nom as nom_equipe, equipe.date_creation as date_creation, projet.nom as nom_projet  ,       GROUP_CONCAT(DISTINCT membre.nom SEPARATOR ', ') AS membres
-FROM `equipe` join projet on projet.id=equipe.id_projet LEFT JOIN
-       MembreEquipe AS membre_equipe ON equipe.id = membre_equipe.id_equipe
-   LEFT JOIN
-       utilisateur AS membre ON membre_equipe.id_user = membre.id where equipe.id_user=?;";
+$sql = "SELECT 
+equipe.id AS id_equipe,
+equipe.nom AS nom_equipe,
+equipe.date_creation AS date_creation,
+projet.nom AS nom_projet,
+GROUP_CONCAT(DISTINCT membre.nom SEPARATOR ', ') AS membres
+FROM
+equipe
+JOIN projet ON projet.id = equipe.id_projet
+LEFT JOIN MembreEquipe AS membre_equipe ON equipe.id = membre_equipe.id_equipe
+LEFT JOIN utilisateur AS membre ON membre_equipe.id_user = membre.id
+WHERE
+equipe.id_user = ?
+GROUP BY
+equipe.id;";
 $requete = $conn->prepare($sql);
 $requete->bind_param("i", $utilisateur);
 $requete->execute();
@@ -25,6 +35,44 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['id_equipe'])) {
     $sqlDeleteTeams = $conn->prepare($sqlDeleteTeams);
     $sqlDeleteTeams->bind_param("i", $id_equipe);
     $sqlDeleteTeams->execute();
+}
+
+
+
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+
+    if (isset($_POST["nomEquipe"], $_POST["projet"], $_POST["membresEquipe"])) {
+
+        $nomEquipe = htmlspecialchars($_POST["nomEquipe"]);
+        $idProjet = htmlspecialchars($_POST["projet"]);
+        $membresEquipe = $_POST["membresEquipe"];
+
+        $sqlInsertEquipe = "INSERT INTO equipe (nom, id_user, id_projet) VALUES (?,? , ?)";
+        $requeteInsertEquipe = $conn->prepare($sqlInsertEquipe);
+        $requeteInsertEquipe->bind_param("sii", $nomEquipe,$utilisateur, $idProjet);
+
+        if ($requeteInsertEquipe->execute()) {
+            $idEquipe = $requeteInsertEquipe->insert_id;
+
+            $sqlInsertMembres = "INSERT INTO MembreEquipe (id_user, id_equipe) VALUES (?, ?)";
+            $requeteInsertMembres = $conn->prepare($sqlInsertMembres);
+
+            foreach ($membresEquipe as $idMembre) {
+                $requeteInsertMembres->bind_param("ii", $idMembre, $idEquipe);
+                $requeteInsertMembres->execute();
+            }
+
+            echo "Équipe ajoutée avec succès.";
+            header("Location: equipe.php");
+        } else {
+            echo "Erreur lors de l'ajout de l'équipe : " . $requeteInsertEquipe->error;
+        }
+
+        $requeteInsertEquipe->close();
+        $requeteInsertMembres->close();
+    } else {
+        echo "Tous les champs du formulaire doivent être remplis.";
+    }
 }
 
 ?>
@@ -117,7 +165,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['id_equipe'])) {
             <div class="container mx-auto p-6">
                 <h1 class="text-3xl text-center font-bold text-gray-800 mb-6">teams Management</h1>
                 <div class="mb-6">
-                    <button class="inline-flex items-center text-gray-500 bg-white border border-gray-300
+                    <button id="openModal" onclick="addTeam()" class="inline-flex items-center text-gray-500 bg-white border border-gray-300
                                 hover:bg-gray-100  font-medium
                                 rounded-lg text-sm px-3 py-1.5 ">
                         Ajouter une équipe
@@ -141,7 +189,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['id_equipe'])) {
                         <tbody>
 
                             <?php
-                            while ($row = $resultat->fetch_assoc() ) {
+                            while ($row = $resultat->fetch_assoc()) {
                                 echo " 
                                     <tr data-equipe-id=\"{$row['id_equipe']}\" class=\"bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50
                                     dark:hover:bg-gray-600 \">
@@ -179,9 +227,77 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['id_equipe'])) {
         </div>
     </div>
 
+
+
+    <div id="equipeModal"
+        class="hidden fixed top-0 left-0 w-full h-full bg-black bg-opacity-50 flex items-center justify-center">
+
+
+        <div class="bg-white p-8 rounded shadow-lg w-96">
+            <div class="flex justify-end w-full">
+
+                <button id="closeModal" type="button"
+                    class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm h-8 w-8  ms-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white"
+                    data-modal-toggle="crypto-modal">
+                    <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none"
+                        viewBox="0 0 14 14">
+                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6" />
+                    </svg>
+                    <span class="sr-only">Close modal</span>
+                </button>
+            </div>
+            <form action="equipe.php" method="post" class="max-w-md mx-auto ">
+    <div class="mb-4">
+        <label for="nomEquipe" class="block text-gray-700 text-sm font-bold mb-2">Nom de l'Équipe</label>
+        <input type="text" id="nomEquipe" name="nomEquipe" placeholder="Entrez le nom de l'équipe"
+            class="w-full px-4 py-2 border rounded focus:outline-none focus:border-blue-500">
+    </div>
+
+    <div class="mb-4">
+        <label for="projet" class="block text-gray-700 text-sm font-bold mb-2">Projet de l'Équipe</label>
+        <select id="projet" name="projet"
+            class="w-full px-4 py-2 border rounded focus:outline-none focus:border-blue-500">
+            <?php
+            $sqlProjet = "SELECT id, nom FROM projet";
+            $requeteProjet = $conn->prepare($sqlProjet);
+            $requeteProjet->execute();
+            $resultatProjet = $requeteProjet->get_result();
+            while ($rowProjet = $resultatProjet->fetch_assoc()) {
+                echo "<option value=\"{$rowProjet['id']}\">{$rowProjet['nom']}</option>";
+            }
+            ?>
+        </select>
+    </div>
+
+    <div class="mb-4">
+        <label for="membresEquipe" class="block text-gray-700 text-sm font-bold mb-2">Membres de l'Équipe</label>
+        <select id="membresEquipe" name="membresEquipe[]" multiple
+            class="w-full px-1 py-2 border rounded">
+            <?php
+            $sqlMembres = "SELECT id, email FROM utilisateur WHERE role='user'";
+            $requeteMembres = $conn->prepare($sqlMembres);
+            $requeteMembres->execute();
+            $resultatMembres = $requeteMembres->get_result();
+            while ($rowMembre = $resultatMembres->fetch_assoc()) {
+                echo "<option value=\"{$rowMembre['id']}\">{$rowMembre['email']}</option>";
+            }
+            ?>
+        </select>
+    </div>
+
+    <button type="submit"
+        class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 focus:outline-none focus:shadow-outline-blue">Ajouter
+        Équipe</button>
+</form>
+
+        </div>
+    </div>
+
+
     <?php
     $requete->close();
-?>
+    ?>
 
 
 

@@ -1,3 +1,7 @@
+    document.getElementById('burgerBtn').addEventListener('click', function () {
+        document.getElementById('burgerOverlay').classList.toggle('hidden');
+    });
+
 function confirmDelete(event) {
     event.stopPropagation();
 
@@ -43,3 +47,97 @@ function confirmDeleteTeam(event) {
         xhr.send('id_equipe=' + equipeId);
     }
 }
+
+
+function addTeam(){
+    const openModalButton = document.getElementById('openModal');
+const closeModalButton = document.getElementById('closeModal');
+const equipeModal = document.getElementById('equipeModal');
+const equipeForm = document.getElementById('equipeForm');
+
+openModalButton.addEventListener('click', () => {
+    equipeModal.classList.remove('hidden');
+
+});
+
+closeModalButton.addEventListener('click', () => {
+    equipeModal.classList.add('hidden');
+
+});
+
+
+
+equipeForm.addEventListener('submit', (event) => {
+    // Ajoutez le code pour traiter le formulaire ici
+    event.preventDefault();
+    // Fermez le modal après avoir traité le formulaire si nécessaire
+    equipeModal.classList.add('hidden');
+});
+
+}
+
+function UpdateTeam(){
+    const openModalButton = document.getElementById('openModal');
+const closeModalButton = document.getElementById('closeModal');
+const equipeModal = document.getElementById('equipeModal');
+const equipeForm = document.getElementById('equipeForm');
+
+openModalButton.addEventListener('click', () => {
+    equipeModal.classList.remove('hidden');
+
+});
+
+closeModalButton.addEventListener('click', () => {
+    equipeModal.classList.add('hidden');
+
+});
+
+
+
+equipeForm.addEventListener('submit', (event) => {
+    // Ajoutez le code pour traiter le formulaire ici
+    event.preventDefault();
+    // Fermez le modal après avoir traité le formulaire si nécessaire
+    equipeModal.classList.add('hidden');
+});
+
+}
+
+function addProject(){
+    document.getElementById('projectName').value = '';
+    document.getElementById('deadline').value = '';
+    document.getElementById('scrum_master').value = '';
+    document.getElementById('description').value = '';
+
+    document.getElementById('projectModal').classList.remove('hidden');
+
+    const openModalButton = document.getElementById('openModal');
+    const projectModal = document.getElementById('projectModal');
+    const closeModalButton = document.getElementById('closeModal');
+    // const projectForm = document.getElementById('projectForm');
+    const UpdateProjectButton = document.querySelector('#UpdateProjectButton');
+    const addProjectButton = document.querySelector('#addProjectButton');
+
+
+    UpdateProjectButton.style.display = 'none';
+    addProjectButton.style.display = 'flex';
+
+
+    openModalButton.addEventListener('click', () => {
+        projectModal.classList.toggle('hidden');
+    
+    });
+    
+    closeModalButton.addEventListener('click', () => {
+        projectModal.classList.add('hidden');
+    
+    });
+    
+    // projectForm.addEventListener('submit', (event) => {
+    //     // Ajoutez le code pour traiter le formulaire ici
+    //     event.preventDefault();
+    //     // Fermez le modal après avoir traité le formulaire si nécessaire
+    //     projectModal.classList.add('hidden');
+    // });
+}
+

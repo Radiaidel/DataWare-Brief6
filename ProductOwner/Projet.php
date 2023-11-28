@@ -14,9 +14,6 @@ $resultat = $requete->get_result();
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['projectIdUpdate'])) {
 
-
-
-
     $projectId = $_POST['projectIdUpdate'];
 
     echo $projectId;
@@ -76,6 +73,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['projectId'])) {
 
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
+
     if (isset($_POST["projectName"], $_POST["deadline"], $_POST["scrum_master"], $_POST["description"])) {
         $projectName = htmlspecialchars($_POST["projectName"]);
         $deadline = htmlspecialchars($_POST["deadline"]);

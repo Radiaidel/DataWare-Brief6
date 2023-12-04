@@ -49,19 +49,15 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['submitSignIn'])) {
             session_start();
             $_SESSION['utilisateur'] = [
                 'id' => $utilisateur['id'],
-                'nom' => $utilisateur['nom'],
-                'email' => $utilisateur['email'],
-                'role' => $utilisateur['role'],
-                // Ajoutez d'autres champs si nécessaire
             ];
             if ($utilisateur['role'] == 'user') {
-                header("Location: ./Membre/Dashboard.php");
+                header("Location: ./Membre/equipe.php");
                 exit();
             } elseif ($utilisateur['role'] == 'po') {
-                header("Location: ./ProductOwner/Dashboard.php");
+                header("Location: ./ProductOwner/projet.php");
                 exit();
             } else {
-                header("Location: ./ScrumMaster/Dashboard.php");
+                header("Location: ./ScrumMaster/projet.php");
             }
         } else {
             echo "Mot de passe incorrect.";

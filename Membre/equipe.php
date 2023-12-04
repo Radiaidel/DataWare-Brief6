@@ -1,7 +1,11 @@
 <?php
-include("../Connexion.php");
-session_start();
 
+session_start();
+if(!isset($_SESSION['utilisateur']['id'])){
+    header("Location:../Deconnexion.php ");
+}
+
+include("../Connexion.php");
 $id_utilisateur = $_SESSION['utilisateur']['id'];
 $sql = "SELECT
         equipe.nom AS nom_equipe,
@@ -136,6 +140,7 @@ $resultat = $requete->get_result();
 
 <?php
     $requete->close();
+    $conn->close();
 ?>
 
 

@@ -53,7 +53,12 @@ function addTeam(){
     const openModalButton = document.getElementById('openModal');
 const closeModalButton = document.getElementById('closeModal');
 const equipeModal = document.getElementById('equipeModal');
-const equipeForm = document.getElementById('equipeForm');
+// const equipeForm = document.getElementById('equipeForm');
+const UpdateTeamButton = document.querySelector('#UpdateTeamButton');
+const addTeamButton = document.querySelector('#addTeamButton');
+
+UpdateTeamButton.style.display = 'none';
+addTeamButton.style.display = 'flex';
 
 openModalButton.addEventListener('click', () => {
     equipeModal.classList.remove('hidden');
@@ -67,39 +72,12 @@ closeModalButton.addEventListener('click', () => {
 
 
 
-equipeForm.addEventListener('submit', (event) => {
-    // Ajoutez le code pour traiter le formulaire ici
-    event.preventDefault();
-    // Fermez le modal après avoir traité le formulaire si nécessaire
-    equipeModal.classList.add('hidden');
-});
-
-}
-
-function UpdateTeam(){
-    const openModalButton = document.getElementById('openModal');
-const closeModalButton = document.getElementById('closeModal');
-const equipeModal = document.getElementById('equipeModal');
-const equipeForm = document.getElementById('equipeForm');
-
-openModalButton.addEventListener('click', () => {
-    equipeModal.classList.remove('hidden');
-
-});
-
-closeModalButton.addEventListener('click', () => {
-    equipeModal.classList.add('hidden');
-
-});
-
-
-
-equipeForm.addEventListener('submit', (event) => {
-    // Ajoutez le code pour traiter le formulaire ici
-    event.preventDefault();
-    // Fermez le modal après avoir traité le formulaire si nécessaire
-    equipeModal.classList.add('hidden');
-});
+// equipeForm.addEventListener('submit', (event) => {
+//     // Ajoutez le code pour traiter le formulaire ici
+//     event.preventDefault();
+//     // Fermez le modal après avoir traité le formulaire si nécessaire
+//     equipeModal.classList.add('hidden');
+// });
 
 }
 
@@ -114,7 +92,7 @@ function addProject(){
     const openModalButton = document.getElementById('openModal');
     const projectModal = document.getElementById('projectModal');
     const closeModalButton = document.getElementById('closeModal');
-    // const projectForm = document.getElementById('projectForm');
+    const projectForm = document.getElementById('projectForm');
     const UpdateProjectButton = document.querySelector('#UpdateProjectButton');
     const addProjectButton = document.querySelector('#addProjectButton');
 
@@ -133,11 +111,11 @@ function addProject(){
     
     });
     
-    // projectForm.addEventListener('submit', (event) => {
-    //     // Ajoutez le code pour traiter le formulaire ici
-    //     event.preventDefault();
-    //     // Fermez le modal après avoir traité le formulaire si nécessaire
-    //     projectModal.classList.add('hidden');
-    // });
+    projectForm.addEventListener('submit', (event) => {
+        // Ajoutez le code pour traiter le formulaire ici
+        event.preventDefault();
+        // Fermez le modal après avoir traité le formulaire si nécessaire
+        projectModal.classList.add('hidden');
+    });
 }
 

@@ -1,6 +1,11 @@
 <?php
-include("../Connexion.php");
 session_start();
+if(!isset($_SESSION['utilisateur']['id'])){
+    header("Location:../Deconnexion.php ");
+}
+
+
+include("../Connexion.php");
 $id_utilisateur = $_SESSION['utilisateur']['id'];
 
 $sql = "SELECT projet.nom as nom_projet, description, projet.date_creation as date_creation, date_limite, projet.statut as statut, equipe.nom AS nom_equipe 

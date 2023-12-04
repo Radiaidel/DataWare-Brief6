@@ -1,4 +1,9 @@
 <?php
+session_start();
+if(!isset($_SESSION['utilisateur']['id'])){
+    header("Location:../Deconnexion.php ");
+}
+
 include("../Connexion.php");
 
 $sql = "select nom,email,statut from utilisateur where role='user' ";

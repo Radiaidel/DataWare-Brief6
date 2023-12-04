@@ -1,6 +1,10 @@
 <?php
-include("../Connexion.php");
 session_start();
+if (!isset($_SESSION['utilisateur']['id'])) {
+    header("Location:../Deconnexion.php ");
+}
+
+include("../Connexion.php");
 $id_utilisateur = $_SESSION['utilisateur']['id'];
 
 //affichage
@@ -12,105 +16,119 @@ $requete->execute();
 $resultat = $requete->get_result();
 
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['projectIdUpdate'])) {
 
-    $projectId = $_POST['projectIdUpdate'];
+//Update
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    if (isset($_POST['update_project'])) {
 
-    echo $projectId;
-
-    $sql = "SELECT * FROM projet WHERE id = ?";
-    $requete = $conn->prepare($sql);
-    $requete->bind_param("i", $projectId);
-    $requete->execute();
-    $result = $requete->get_result();
+        $projectId = $_POST['projectIdUpdate'];
 
 
-    if ($row = $result->fetch_assoc()) {
+        $sql = "SELECT * FROM projet WHERE id = ?";
+        $requete = $conn->prepare($sql);
+        $requete->bind_param("i", $projectId);
+        $requete->execute();
+        $result = $requete->get_result();
 
 
-        // Fill the modal form with project information
-        $projectName = $row['nom'];
-        $deadline = $row['date_limite'];
-        $scrumMaster = $row['id_user'];
-        $description = $row['description'];
+        if ($row = $result->fetch_assoc()) {
+            $projectIdUpdate = $row['id'];
+            $projectName = $row['nom'];
+            $deadline = $row['date_limite'];
+            $scrumMaster = $row['id_user'];
+            $description = $row['description'];
+        } else {
+            echo "No project found with ID " . $projectId;
+        }
+    } else if (isset($_POST['projectId'])) {
+        $projectId = $_POST['projectId'];
 
-        echo "<script>
-            document.getElementById('projectName').value = '$projectName';
-            document.getElementById('deadline').value = '$deadline';
-            document.getElementById('scrum_master').value = '$scrumMaster';
-            document.getElementById('description').value = '$description';
-    
-            document.getElementById('projectModal').classList.remove('hidden');
-        </script>";
-    } else {
-        echo "No project found with ID " . $projectId;
-    }
-}
+        $sql = "DELETE FROM MembreEquipe WHERE id_equipe IN (SELECT id FROM equipe WHERE id_projet = ?)";
+        $requete = $conn->prepare($sql);
+        $requete->bind_param("i", $projectId);
+        $requete->execute();
 
+        $sql = "DELETE FROM equipe WHERE id_projet = ?";
+        $requete = $conn->prepare($sql);
+        $requete->bind_param("i", $projectId);
+        $requete->execute();
 
+        $sql = "DELETE FROM projet WHERE id = ?";
+        $requete = $conn->prepare($sql);
+        $requete->bind_param("i", $projectId);
+        $requete->execute();
 
-//delete project
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['projectId'])) {
-    $projectId = $_POST['projectId'];
+    } elseif (isset($_POST["projectName"], $_POST["deadline"], $_POST["scrum_master"], $_POST["description"]) || isset($_POST['projectIdUpdate'],$_POST['update_project'],$_POST["projectName"], $_POST["deadline"], $_POST["scrum_master"], $_POST["description"]) ) {
 
-    $sqlDeleteMembers = "DELETE FROM MembreEquipe WHERE id_equipe IN (SELECT id FROM equipe WHERE id_projet = ?)";
-    $stmtDeleteMembers = $conn->prepare($sqlDeleteMembers);
-    $stmtDeleteMembers->bind_param("i", $projectId);
-    $stmtDeleteMembers->execute();
-
-    $sqlDeleteTeams = "DELETE FROM equipe WHERE id_projet = ?";
-    $stmtDeleteTeams = $conn->prepare($sqlDeleteTeams);
-    $stmtDeleteTeams->bind_param("i", $projectId);
-    $stmtDeleteTeams->execute();
-
-    $sqlDeleteProject = "DELETE FROM projet WHERE id = ?";
-    $stmtDeleteProject = $conn->prepare($sqlDeleteProject);
-    $stmtDeleteProject->bind_param("i", $projectId);
-    $stmtDeleteProject->execute();
-}
-
-//ajouter un projet
-
-
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
-
-    if (isset($_POST["projectName"], $_POST["deadline"], $_POST["scrum_master"], $_POST["description"])) {
         $projectName = htmlspecialchars($_POST["projectName"]);
         $deadline = htmlspecialchars($_POST["deadline"]);
         $scrumMaster = htmlspecialchars($_POST["scrum_master"]);
         $description = htmlspecialchars($_POST["description"]);
 
-        $sql = "Update utilisateur set role='sm' where id=? ;";
-        $requete = $conn->prepare($sql);
-        $requete->bind_param("s",$scrumMaster);
-        $requete->execute();
 
-        // Préparez et exécutez la requête d'insertion
-        $sql = "INSERT INTO projet (nom, description, date_creation, date_limite, statut, id_user) VALUES (?, ?, NOW(), ?,'En cours',?);";
-        $requete = $conn->prepare($sql);
+        if (isset($_POST['update'])) {
 
-        if ($requete) {
-            $requete->bind_param("ssss", $projectName, $description, $deadline, $scrumMaster);
-            if ($requete->execute()) {
-                echo "Projet ajouté avec succès.";
-                header("Location: Projet.php");
-            } else {
-                echo "Erreur lors de l'ajout du projet : " . $requete->error;
+            $projectId = $_POST['projectIdUpdate'];
+            $sql = "UPDATE projet SET nom=?, description=?, date_limite=?, id_user=? WHERE id= ?";
+            $requete = $conn->prepare($sql);
+
+            // Vérification de la préparation de la requête
+            if (!$requete) {
+                die('Erreur de préparation de la requête : ' . $conn->error);
             }
-            $requete->close();
+
+            $requete->bind_param("ssssi", $projectName, $description, $deadline, $scrumMaster, $projectId);
+
+            // Vérification de l'exécution de la requête
+            if ($requete->execute()) {
+
+                echo "<script>
+                    const projectModal = document.getElementById('projectModal');
+                    const projectForm = document.getElementById('projectForm');
+
+                    projectForm.addEventListener('submit', (event) => {
+                        // Ajoutez le code pour traiter le formulaire ici
+                        event.preventDefault();
+                        // Fermez le modal après avoir traité le formulaire si nécessaire
+                        projectModal.classList.add('hidden');
+                    });
+                    </script>";
+
+                echo "Le projet a été modifié avec succès";
+            } else {
+                echo "Erreur lors de l'exécution de la requête : " . $requete->error;
+            }
+
         } else {
-            echo "Erreur de préparation de la requête : " . $conn->error;
+
+            $sql = "Update utilisateur set role='sm' where id=? ;";
+            $requete = $conn->prepare($sql);
+            $requete->bind_param("s", $scrumMaster);
+            $requete->execute();
+
+            // Préparez et exécutez la requête d'insertion
+            $sql = "INSERT INTO projet (nom, description, date_creation, date_limite, statut, id_user) VALUES (?, ?, NOW(), ?,'En cours',?);";
+            $requete = $conn->prepare($sql);
+
+            if ($requete) {
+                $requete->bind_param("ssss", $projectName, $description, $deadline, $scrumMaster);
+                if ($requete->execute()) {
+                    echo "Projet ajouté avec succès.";
+                    header("Location: Projet.php");
+                } else {
+                    echo "Erreur lors de l'ajout du projet : " . $requete->error;
+                }
+                $requete->close();
+            } else {
+                echo "Erreur de préparation de la requête : " . $conn->error;
+            }
         }
-    } else {
-        echo "Tous les champs du formulaire doivent être remplis.";
     }
+
 }
-
-
-
-
-
 ?>
+
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -174,7 +192,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             <div class="container mx-auto p-6">
                 <h1 class="text-3xl text-center font-bold text-gray-800 mb-6">Project Management</h1>
                 <div class="mb-6">
-                    <button id="openModal" onclick="addProject()" class="inline-flex items-center text-gray-500 bg-white border border-gray-300
+                    <button id="openModal" name="addproject" onclick="addProject()" class="inline-flex items-center text-gray-500 bg-white border border-gray-300
                                     hover:bg-gray-100  font-medium
                                     rounded-lg text-sm px-3 py-1.5 ">
                         Ajouter un Projet
@@ -210,7 +228,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                     <td class=\"px-6 py-4 border-b\">{$row['date_limite']}</td>
                                     <td class=\"px-6 py-4\">
                                                                     <div class=\"flex gap-6\">
-                                                                    <form  method=\"POST\" id=\"updateform\">
+                                                                    <form  method=\"post\" id=\"updateform\">
                                                                     <input   type=\"hidden\" name=\"projectIdUpdate\" value=\"{$row['id_projet']}\">
                                                                         <button  type=\"submit\" name=\"update_project\" class=\"openModal2\" style=\"cursor: pointer;\">
                                                                             <svg xmlns=\"http://www.w3.org/2000/svg\" fill=\"none\" viewBox=\"0 0 24 24\" stroke-width=\"1.5\" stroke=\"currentColor\" class=\"w-6 h-6\">
@@ -254,6 +272,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                             </button>
                         </div>
                         <form action="Projet.php" method="post">
+                            <input type="text" id="projectIdUpdate" name="projectIdUpdate" value="" hidden>
                             <div class="mb-4">
                                 <label for="projectName" class="block text-gray-700 text-sm font-bold mb-2">Nom du
                                     Projet</label>
@@ -297,7 +316,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                 class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 focus:outline-none focus:shadow-outline-blue">Ajouter
                                 Projet</button>
                             <button type="submit" id="UpdateProjectButton"
-                                class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 focus:outline-none focus:shadow-outline-blue">Modifier
+                                class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 focus:outline-none focus:shadow-outline-blue"
+                                name="update">Modifier
                                 Projet</button>
                         </form>
                     </div>
@@ -311,13 +331,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
     <script>
 
+
         const projectModal = document.getElementById('projectModal');
         const closeModalButton = document.getElementById('closeModal');
         const UpdateProjectButton = document.querySelector('#UpdateProjectButton');
         const addProjectButton = document.querySelector('#addProjectButton');
         const updateform = document.getElementById('updateform');
         const openModalButton = document.getElementById('openModal');
-
 
         UpdateProjectButton.style.display = 'flex';
         addProjectButton.style.display = 'none';
@@ -331,15 +351,24 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
         });
         // Remplir les champs du formulaire avec les données du projet
+        document.getElementById('projectIdUpdate').value = '<?php echo $projectIdUpdate; ?>';
+
         document.getElementById('projectName').value = '<?php echo $projectName; ?>';
         document.getElementById('deadline').value = '<?php echo $deadline; ?>';
         document.getElementById('scrum_master').value = '<?php echo $scrumMaster; ?>';
         document.getElementById('description').value = '<?php echo $description; ?>';
 
+
+
+
         document.getElementById('projectModal').classList.remove('hidden');
-        // updateform.submit();
+
     </script>
 
+    <?php
+    $requete->close();
+    $conn->close();
+    ?>
 </body>
 
 </html>

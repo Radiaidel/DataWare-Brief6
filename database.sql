@@ -27,17 +27,19 @@ create table equipe(
     date_creation date NOT NULL DEFAULT CURRENT_TIMESTAMP(),
     id_user int,
     id_projet int,
-    foreign key (id_projet) references projet(id),
+    foreign key (id_projet) references projet(id) ON DELETE CASCADE,
     foreign key (id_user) references utilisateur(id)
 );
 
-create table MembreEquipe(
+
+CREATE TABLE MembreEquipe(
     id int auto_increment primary key,
     id_user int,
     id_equipe int,
-    foreign key (id_user) references utilisateur(id),
-    foreign key (id_equipe) references equipe(id)
+    foreign key (id_user) references utilisateur(id) ON DELETE CASCADE,
+    foreign key (id_equipe) references equipe(id) ON DELETE CASCADE
 );
+
 
 alter table
     utilisateur drop column tache;
